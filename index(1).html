@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Shelf</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#7c3aed">
+<style>
+:root{--bg:#f5f3ff;--card:#fff;--tx:#1e1b2e;--mu:#6b6785;--bd:#e4e0f5;--ac:#7c3aed;--sh:0 6px 20px rgba(80,50,160,.12)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13111c;--card:#1e1b2e;--tx:#f1eefc;--mu:#a29dc0;--bd:#33304a;--ac:#a78bfa;--sh:0 6px 20px rgba(0,0,0,.4)}}
+:root[data-theme="dark"]{--bg:#13111c;--card:#1e1b2e;--tx:#f1eefc;--mu:#a29dc0;--bd:#33304a;--ac:#a78bfa;--sh:0 6px 20px rgba(0,0,0,.4)}
+*{box-sizing:border-box}
+html{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding:0 14px 120px}
+button{font:inherit;cursor:pointer;color:inherit}
+[hidden]{display:none!important}
+.hero{margin:10px 0 14px;border-radius:24px;padding:18px;color:#fff;background:linear-gradient(135deg,#7c3aed,#db2777 60%,#ea580c);box-shadow:var(--sh)}
+.hr1{display:flex;justify-content:space-between;align-items:center}
+.hero h1{margin:0;font-size:24px;letter-spacing:-.5px}
+.hero p{margin:2px 0 12px;opacity:.9;font-size:13px}
+.ib{border:0;background:rgba(255,255,255,.22);color:#fff;border-radius:12px;width:38px;height:38px;font-size:18px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.chip{background:rgba(255,255,255,.22);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600}
+.meter{height:7px;border-radius:5px;background:rgba(255,255,255,.28);overflow:hidden}
+.meter i{display:block;height:100%;background:#fff;border-radius:5px}
+.ms{font-size:11px;opacity:.9;margin-top:5px}
+.sr{width:100%;padding:12px 16px;border-radius:16px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit;box-shadow:var(--sh);margin-bottom:12px}
+.crumb{font-size:13px;color:var(--mu);margin:2px 0 10px;display:flex;flex-wrap:wrap;gap:4px}
+.crumb a{color:var(--ac);font-weight:600;cursor:pointer}
+.note{background:var(--card);border:1px dashed var(--bd);border-radius:14px;padding:10px 12px;font-size:13px;color:var(--mu);margin-bottom:12px}
+h2{font-size:15px;margin:16px 2px 8px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:620px){.grid{grid-template-columns:repeat(4,1fr)}}
+.it{position:relative;border-radius:20px;overflow:hidden;min-height:132px;display:flex;flex-direction:column;justify-content:flex-end;cursor:pointer;box-shadow:var(--sh);background-size:cover;background-position:center;background-color:#4b4568;color:#fff}
+.it .em{position:absolute;top:12px;left:14px;font-size:30px}
+.it .nm{padding:30px 12px 11px;font-weight:700;font-size:14px;background:linear-gradient(transparent,rgba(0,0,0,.7));word-break:break-word}
+.it small{display:block;font-weight:500;opacity:.85;font-size:11px;margin-top:2px}
+.file{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+.file .em{position:static;text-align:center;margin-top:20px;flex:1;font-size:34px}
+.file .nm{background:none;padding:6px 12px 11px;font-size:13px}
+.ab{position:absolute;top:8px;right:8px;display:flex;gap:6px}
+.ab button{border:0;background:rgba(0,0,0,.4);color:#fff;border-radius:50%;width:30px;height:30px;font-size:14px}
+.file .ab button{background:var(--bg);color:var(--tx)}
+.empty{text-align:center;color:var(--mu);padding:44px 12px;font-size:14px}
+.empty b{display:block;font-size:40px;margin-bottom:6px}
+.bar{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-around;background:var(--card);border:1px solid var(--bd);border-radius:26px;padding:8px 6px;box-shadow:0 10px 30px rgba(60,30,140,.25);z-index:10}
+.bar .t{border:0;background:none;display:flex;flex-direction:column;align-items:center;font-size:11px;color:var(--mu);padding:4px 10px;border-radius:14px}
+.bar .t span{font-size:20px}
+.bar .t.on{color:var(--ac);font-weight:700;background:var(--bg)}
+.plus{border:0;width:54px;height:54px;border-radius:50%;margin-top:-30px;font-size:28px;color:#fff;background:linear-gradient(135deg,#7c3aed,#db2777);box-shadow:0 8px 20px rgba(124,58,237,.5)}
+.md{position:fixed;inset:0;background:rgba(10,8,20,.55);display:flex;align-items:flex-end;justify-content:center;z-index:30}
+.md>div{background:var(--bg);width:100%;max-width:500px;border-radius:26px 26px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));max-height:92%;overflow:auto}
+.md h3{margin:0 0 10px}
+.fld{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit;margin:4px 0 10px}
+label{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
+.sw{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px;align-items:center}
+.sw i{width:30px;height:30px;border-radius:50%;border:3px solid transparent;cursor:pointer}
+.sw i.on{border-color:var(--tx)}
+.ems{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.ems button{border:1px solid var(--bd);background:var(--card);border-radius:10px;font-size:20px;padding:3px 7px}
+.cov{height:120px;border-radius:16px;border:2px dashed var(--bd);display:flex;align-items:center;justify-content:center;color:var(--mu);font-size:13px;background-size:cover;background-position:center;cursor:pointer;margin:6px 0 10px;text-align:center}
+.row{display:flex;gap:8px;margin-top:10px}
+.b{flex:1;padding:13px;border-radius:14px;border:0;font-weight:700;color:#fff;background:linear-gradient(135deg,#7c3aed,#db2777)}
+.b2{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+.col{display:flex;flex-direction:column;gap:8px}
+.tr{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;margin-bottom:8px;font-size:14px}
+.sm{padding:7px 11px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);font-size:13px}
+#msg{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:22px;font-size:13px;z-index:60;display:none;max-width:90%}
+#vw{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.vh{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--bd)}
+.vh b{flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#vb{flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;background:#0d0b14;padding-bottom:env(safe-area-inset-bottom,0px)}
+#vb img,#vb video{max-width:100%;max-height:100%;margin:auto}
+#vb audio{margin:40px 0;width:90%}
+#vb .empty{color:#cfc9ee;margin:auto}
+.pg{width:100%;display:block;background:#fff;margin-bottom:6px}
+.ta{flex:1;width:100%;border:0;padding:16px;font:inherit;font-size:16px;background:var(--card);color:var(--tx);resize:none}
+</style>
+</head>
+<body>
+<div class="hero">
+ <div class="hr1"><h1>📚 My Shelf</h1><button class="ib" id="th">🌗</button></div>
+ <p>Offline. Everything stays on this phone.</p>
+ <div class="chips" id="chips"></div>
+ <div class="meter"><i id="mt" style="width:0%"></i></div><div class="ms" id="ms"></div>
+</div>
+<input class="sr" id="q" type="search" placeholder="🔍  Search shelves, files and notes">
+<div id="main"><div class="empty">Loading…</div></div>
+<div class="bar" id="bar">
+ <button class="t on" data-t="lib"><span>🏠</span>Library</button>
+ <button class="t" data-t="star"><span>⭐</span>Starred</button>
+ <button class="plus" id="plus">+</button>
+ <button class="t" data-t="recent"><span>🕘</span>Recent</button>
+ <button class="t" data-t="trash"><span>🗑️</span>Trash</button>
+</div>
+<div id="vw" hidden><div class="vh"><button class="sm" id="vc">✕ Close</button><b id="vt"></b><button class="sm" id="vs">📱 Save</button></div><div id="vb"></div></div>
+<input type="file" id="fm" accept="image/*,video/*,audio/*" multiple hidden>
+<input type="file" id="fd" multiple hidden>
+<div id="msg"></div>
+<script>
+const PAL=["#7c3aed","#db2777","#ea580c","#d97706","#16a34a","#0891b2","#2563eb","#4f46e5","#e11d48","#0d9488"];
+const EMO=["📘","🧠","🌿","👁️","👂","🧪","📜","🕉️","💪","🎬","🔬","🩺"];
+const PDF="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+let N=[],cur="root",tab="lib",q="",U={};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const byId=id=>N.find(n=>n.id===id),kids=id=>N.filter(n=>n.parent===id);
+const desc=id=>kids(id).flatMap(k=>[k,...desc(k.id)]);
+function alive(n){let x=n;while(x){if(x.deleted)return false;x=byId(x.parent)}return true}
+function pathOf(n){let p=[],x=byId(n.parent);while(x){p.unshift(x.name);x=byId(x.parent)}return p.join(" › ")}
+const uid=()=>"n"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const er=e=>say("Something went wrong: "+(e&&e.message||e));
+function say(t){const m=$("msg");m.textContent=t;m.style.display="block";clearTimeout(say.t);say.t=setTimeout(()=>m.style.display="none",2600)}
+const mb=b=>b>=1073741824?(b/1073741824).toFixed(1)+" GB":(b/1048576).toFixed(b<1e7?1:0)+" MB";
+/* storage */
+const DB=new Promise((res,rej)=>{const r=indexedDB.open("shelf-offline",1);r.onupgradeneeded=()=>{r.result.createObjectStore("nodes",{keyPath:"id"});r.result.createObjectStore("blobs")};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+async function tx(s,m,f){const d=await DB;return new Promise((res,rej)=>{const t=d.transaction(s,m);const r=f(t.objectStore(s));t.oncomplete=()=>res(r&&r.result);t.onerror=t.onabort=()=>rej(t.error)})}
+const putN=n=>tx("nodes","readwrite",s=>s.put(n)),delN=id=>tx("nodes","readwrite",s=>s.delete(id)),allN=()=>tx("nodes","readonly",s=>s.getAll());
+const putB=(k,b)=>tx("blobs","readwrite",s=>s.put(b,k)),getB=k=>tx("blobs","readonly",s=>s.get(k)),delB=k=>tx("blobs","readwrite",s=>s.delete(k));
+async function save(n){const i=N.findIndex(z=>z.id===n.id);i<0?N.push(n):N[i]=n;await putN(n)}
+const upd=(id,p)=>save(Object.assign(byId(id),p));
+async function objUrl(k){if(U[k])return U[k];const b=await getB(k);return b?(U[k]=URL.createObjectURL(b)):null}
+function drop(k){if(U[k]){URL.revokeObjectURL(U[k]);delete U[k]}}
+function hydrate(){document.querySelectorAll("[data-img]").forEach(async el=>{const u=await objUrl(el.dataset.img);if(u)el.style.backgroundImage=`url('${u}')`})}
+async function usage(){try{const e=await navigator.storage.estimate();$("mt").style.width=Math.min(100,e.usage/e.quota*100)+"%";$("ms").textContent=mb(e.usage)+" used · "+mb(Math.max(0,e.quota-e.usage))+" available"}catch(_){}}
+/* helpers */
+function kind(n){if(n.type==="note")return"note";const m=n.mime||"",x=(n.name||"").toLowerCase();if(m.includes("pdf")||x.endsWith(".pdf"))return"pdf";if(m.startsWith("image"))return"image";if(m.startsWith("video")||/\.(mp4|webm|mkv|mov|3gp)$/.test(x))return"video";if(m.startsWith("audio")||/\.(mp3|m4a|wav|ogg|aac)$/.test(x))return"audio";return"other"}
+const IC={note:"📝",pdf:"📕",image:"🖼️",video:"🎞️",audio:"🎵",other:"📄"};
+function card(n,sp){
+ const st=`<button data-s="${n.id}">${n.star?"⭐":"☆"}</button><button data-m="${n.id}">⋮</button>`,pp=sp?`<small>${esc(pathOf(n)||"Home")}</small>`:"";
+ if(n.type==="shelf"){const c=n.color||PAL[0],k=kids(n.id).filter(z=>!z.deleted).length;
+  return`<div class="it" data-id="${n.id}" ${n.cover?`data-img="c${n.id}"`:""} style="background:linear-gradient(135deg,${c},color-mix(in srgb,${c},#000 40%))">${n.cover?"":`<div class="em">${esc(n.emoji||"📁")}</div>`}<div class="ab">${st}</div><div class="nm">${esc(n.name)}<small>${k} item${k==1?"":"s"}</small>${pp}</div></div>`}
+ const kd=kind(n),im=kd==="image";
+ return`<div class="it ${im?"":"file"}" data-id="${n.id}" ${im?`data-img="${n.id}"`:""}>${im?"":`<div class="em">${IC[kd]}</div>`}<div class="ab">${st}</div><div class="nm">${esc(n.name)}${pp}</div></div>`}
+const grid=(l,sp)=>'<div class="grid">'+l.map(n=>card(n,sp)).join("")+'</div>';
+const ord=(a,b)=>((a.type==="shelf"?0:1)-(b.type==="shelf"?0:1))||(a.created||0)-(b.created||0);
+function render(){
+ document.querySelectorAll(".bar .t").forEach(b=>b.classList.toggle("on",b.dataset.t===tab&&!q));
+ const a=N.filter(alive);
+ $("chips").innerHTML=`<span class="chip">📁 ${a.filter(n=>n.type==="shelf").length} shelves</span><span class="chip">📄 ${a.filter(n=>n.type==="file").length} files</span><span class="chip">📝 ${a.filter(n=>n.type==="note").length} notes</span>`;
+ const m=$("main");
+ if(q){const l=a.filter(n=>n.name.toLowerCase().includes(q.toLowerCase()));m.innerHTML=`<h2>Results for “${esc(q)}”</h2>`+(l.length?grid(l,true):'<div class="empty"><b>🔎</b>Nothing found</div>')}
+ else if(tab==="trash"){const t=N.filter(n=>n.deleted&&!(byId(n.parent)&&byId(n.parent).deleted));
+  m.innerHTML='<h2>Trash</h2><div class="note">Deleted by mistake? Tap Restore and it comes back with everything inside.</div>'+(t.length?t.map(n=>`<div class="tr"><span>${n.type==="shelf"?"🗂️":IC[kind(n)]} ${esc(n.name)}</span><span><button class="sm" data-r="${n.id}">↩️ Restore</button> <button class="sm" data-x="${n.id}">❌</button></span></div>`).join(""):'<div class="empty"><b>✨</b>Trash is empty</div>')}
+ else if(tab==="star"){const l=a.filter(n=>n.star);m.innerHTML='<h2>Starred</h2>'+(l.length?grid(l,true):'<div class="empty"><b>⭐</b>Tap the star on anything to pin it here</div>')}
+ else if(tab==="recent"){const l=a.filter(n=>n.type!=="shelf").sort((x,y)=>(y.created||0)-(x.created||0)).slice(0,20);m.innerHTML='<h2>Recently added</h2>'+(l.length?grid(l,true):'<div class="empty"><b>🕘</b>New files and notes show up here</div>')}
+ else{let path=[],x=cur;while(x!=="root"&&byId(x)){path.unshift(byId(x));x=byId(x).parent}
+  let h='<div class="crumb"><a data-h="root">🏠 Home</a>'+path.map(p=>` › <a data-h="${p.id}">${esc(p.name)}</a>`).join("")+'</div>';
+  const here=byId(cur);if(here&&here.note)h+=`<div class="note">📝 ${esc(here.note)}</div>`;
+  const l=kids(cur).filter(n=>!n.deleted).sort(ord),sh=l.filter(n=>n.type==="shelf"),fl=l.filter(n=>n.type!=="shelf");
+  if(sh.length)h+=`<h2>${cur==="root"?"My shelves":"Shelves inside"}</h2>`+grid(sh);
+  if(fl.length)h+='<h2>Files and notes</h2>'+grid(fl);
+  if(!l.length)h+='<div class="empty"><b>🪴</b>This shelf is empty.<br>Tap + to add a shelf, note or files.</div>';
+  m.innerHTML=h}
+ hydrate();usage()}
+$("q").oninput=e=>{q=e.target.value.trim();render()};
+$("bar").onclick=e=>{const t=e.target.closest("[data-t]");if(t){tab=t.dataset.t;q="";$("q").value="";render()}};
+$("th").onclick=()=>{const r=document.documentElement,d=r.dataset.theme==="dark"||(!r.dataset.theme&&matchMedia("(prefers-color-scheme:dark)").matches);r.dataset.theme=d?"light":"dark"};
+$("main").addEventListener("click",async e=>{
+ const g=k=>{const t=e.target.closest("["+k+"]");return t&&t.getAttribute(k)};let v;
+ try{
+ if(v=g("data-h")){cur=v;render()}
+ else if(v=g("data-r")){await upd(v,{deleted:false});say("Restored ✅");render()}
+ else if(v=g("data-x"))permDel(v);
+ else if(v=g("data-s")){await upd(v,{star:!byId(v).star});render()}
+ else if(v=g("data-m"))menu(v);
+ else if(v=g("data-id")){const n=byId(v);if(n.type==="shelf"){cur=n.id;tab="lib";q="";$("q").value="";render()}else openN(n)}
+ }catch(x){er(x)}});
+function sheet(html){const d=document.createElement("div");d.className="md";d.innerHTML="<div>"+html+"</div>";d.onclick=e=>{if(e.target===d)d.remove()};document.body.appendChild(d);return d}
+$("plus").onclick=()=>{const d=sheet(`<h3>Add to ${cur==="root"?"your library":esc(byId(cur).name)}</h3><div class="col"><button class="b" data-a="s">📁 New shelf</button><button class="b b2" data-a="n">📝 New note</button><button class="b b2" data-a="m">🎬 Photos, videos and audio</button><button class="b b2" data-a="d">📕 PDFs and other files</button></div>`);
+ d.addEventListener("click",async e=>{const a=e.target.dataset.a;if(!a)return;d.remove();
+  if(a==="s")editor({type:"shelf"});else if(a==="m")$("fm").click();else if(a==="d")$("fd").click();
+  else{const n={id:uid(),type:"note",parent:cur,name:"Untitled note",text:"",deleted:false,star:false,created:Date.now()};await save(n);render();openN(n)}})};
+/* viewer */
+async function showPdf(box,blob){
+ box.innerHTML='<div class="empty"><b>⏳</b>Opening PDF…</div>';
+ try{
+  if(!window.pdfjsLib){await new Promise((ok,no)=>{const s=document.createElement("script");s.src=PDF+"pdf.min.js";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+   const w=await (await fetch(PDF+"pdf.worker.min.js")).text();pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([w],{type:"text/javascript"}))}
+  const doc=await pdfjsLib.getDocument({data:await blob.arrayBuffer()}).promise,p1=await doc.getPage(1),r0=p1.getViewport({scale:1});
+  box.innerHTML="";
+  const ob=new IntersectionObserver(es=>es.forEach(async en=>{const c=en.target;if(!en.isIntersecting||c.dataset.d)return;c.dataset.d=1;
+   const pg=await doc.getPage(+c.dataset.n),v0=pg.getViewport({scale:1}),v=pg.getViewport({scale:box.clientWidth/v0.width*Math.min(2,devicePixelRatio||1)});
+   c.width=v.width;c.height=v.height;c.style.aspectRatio="auto";await pg.render({canvasContext:c.getContext("2d"),viewport:v}).promise}),{root:box,rootMargin:"800px"});
+  for(let i=1;i<=doc.numPages;i++){const c=document.createElement("canvas");c.className="pg";c.dataset.n=i;c.style.aspectRatio=r0.width+"/"+r0.height;box.appendChild(c);ob.observe(c)}
+ }catch(x){box.innerHTML='<div class="empty"><b>📕</b>The PDF viewer needs internet the first time only.<br>Connect once, then open any PDF. Until then use Save.</div>'}}
+async function openN(n){
+ const kd=kind(n),v=$("vw"),box=$("vb");v.hidden=false;v.dataset.id=n.id;$("vt").textContent=n.name;box.innerHTML="";
+ if(kd==="note"){const t=document.createElement("textarea");t.className="ta";t.value=n.text||"";t.placeholder="Write your note…";box.appendChild(t);return}
+ const b=await getB(n.id);if(!b){box.innerHTML='<div class="empty"><b>⚠️</b>File data not found.</div>';return}
+ const u=await objUrl(n.id);
+ if(kd==="image")box.innerHTML=`<img src="${u}">`;
+ else if(kd==="video")box.innerHTML=`<video src="${u}" controls playsinline></video>`;
+ else if(kd==="audio")box.innerHTML=`<audio src="${u}" controls></audio>`;
+ else if(kd==="pdf")await showPdf(box,b);
+ else box.innerHTML='<div class="empty"><b>📄</b>This type cannot be previewed here.<br>Use Save to open it in another app.</div>'}
+async function closeV(){const v=$("vw"),box=$("vb"),t=box.querySelector("textarea");
+ if(t){const n=byId(v.dataset.id);if(n){const first=t.value.trim().split("\n")[0].slice(0,40);await upd(n.id,{text:t.value,name:n.name==="Untitled note"&&first?first:n.name})}}
+ box.querySelectorAll("video,audio").forEach(m=>m.pause());box.innerHTML="";v.hidden=true;render()}
+$("vc").onclick=()=>closeV().catch(er);
+async function saveOut(n){const t=document.querySelector("#vb textarea");if(t)n=byId(n.id);
+ const b=n.type==="note"?new Blob([(t?t.value:n.text)||""],{type:"text/plain"}):await getB(n.id);if(!b)return say("File data not found");
+ const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=n.name+(n.type==="note"?".txt":"");document.body.appendChild(a);a.click();a.remove();say("Saved to your Downloads")}
+$("vs").onclick=()=>saveOut(byId($("vw").dataset.id)).catch(er);
+function menu(id){
+ const n=byId(id);if(!n)return;
+ const d=sheet(`<h3>${esc(n.name)}</h3><div class="col">`+(n.type!=="shelf"?`<button class="b" data-a="open">👁️ Open</button><button class="b b2" data-a="save">📱 Save a copy to Downloads</button>`:"")+`<button class="b b2" data-a="edit">✏️ ${n.type==="shelf"?"Edit":"Rename"}</button><button class="b b2" data-a="move">📂 Move to…</button><button class="b b2" data-a="del">🗑️ Move to trash</button></div>`);
+ d.addEventListener("click",async e=>{const a=e.target.dataset.a;if(!a)return;d.remove();
+  try{if(a==="open")openN(n);if(a==="save")await saveOut(n);if(a==="edit")editor(n);if(a==="move")mover(n);
+  if(a==="del"){await upd(n.id,{deleted:true});say("Moved to trash. You can restore it anytime.");render()}}catch(x){er(x)}})}
+function mover(n){
+ const bad=new Set([n.id,...desc(n.id).map(z=>z.id)]),t=N.filter(s=>s.type==="shelf"&&!bad.has(s.id)&&alive(s));
+ const d=sheet(`<h3>Move “${esc(n.name)}” to</h3><div class="col"><button class="b b2" data-p="root">🏠 Home</button>${t.map(s=>`<button class="b b2" data-p="${s.id}">${esc(s.emoji||"📁")} ${esc((pathOf(s)?pathOf(s)+" › ":"")+s.name)}</button>`).join("")}</div>`);
+ d.addEventListener("click",async e=>{const p=e.target.dataset.p;if(!p)return;d.remove();await upd(n.id,{parent:p});say("Moved ✅");render()})}
+function editor(n){
+ const isNew=!n.id,isS=n.type==="shelf";let color=n.color||PAL[0],cover=!!n.cover,file=null,emoji=n.emoji||"📁";
+ const d=sheet(`<h3>${isNew?"New shelf":isS?"Edit shelf":"Rename"}</h3><label>Name</label><input class="fld" id="en" placeholder="e.g. Shalakya Tantra" value="${esc(n.name||"")}">`+
+ (isS?`<label>Cover photo</label><div class="cov" id="cv"></div><div class="row" style="margin:0 0 10px"><button class="sm" id="np">Remove photo</button></div><input type="file" id="ep" accept="image/*" hidden>
+ <label>Color</label><div class="sw" id="sw">${PAL.map(c=>`<i data-c="${c}" style="background:${c}"></i>`).join("")}<input type="color" id="cc" value="${color}"></div>
+ <label>Icon</label><div class="ems" id="ems">${EMO.map(e=>`<button data-e="${e}">${e}</button>`).join("")}</div>
+ <label>Note (optional)</label><input class="fld" id="nt" placeholder="Exam date, batch details…" value="${esc(n.note||"")}">`:"")+
+ `<div class="row"><button class="b b2" id="cx">Cancel</button><button class="b" id="ok">Save</button></div>`);
+ if(isS){
+  const mark=()=>d.querySelectorAll("#sw i").forEach(i=>i.classList.toggle("on",i.dataset.c===color));
+  const show=async()=>{const c=$("cv");let u=file?URL.createObjectURL(file):(cover&&n.id?await objUrl("c"+n.id):null);c.style.backgroundImage=u?`url('${u}')`:"none";c.textContent=u?"":"📷 Tap to choose a cover photo"};
+  mark();show();$("cv").onclick=()=>$("ep").click();$("ep").onchange=e=>{file=e.target.files[0];cover=!!file;show()};$("np").onclick=()=>{file=null;cover=false;show()};
+  $("sw").onclick=e=>{if(e.target.dataset.c){color=e.target.dataset.c;mark()}};$("cc").oninput=e=>{color=e.target.value;mark()};
+  $("ems").onclick=e=>{if(e.target.dataset.e)emoji=e.target.dataset.e}}
+ $("cx").onclick=()=>d.remove();
+ $("ok").onclick=async()=>{const name=$("en").value.trim();if(!name)return say("Please enter a name");
+  try{const id=n.id||uid();
+   if(isS){if(file){await putB("c"+id,file);drop("c"+id)}else if(!cover&&n.cover){await delB("c"+id);drop("c"+id)}
+    await save({...n,id,type:"shelf",name,color,emoji,cover,note:$("nt").value.trim(),parent:n.parent||cur,deleted:false,star:!!n.star,created:n.created||Date.now()})}
+   else await upd(id,{name});
+   d.remove();say("Saved ✅");render()}catch(x){er(x)}}}
+function permDel(id){
+ const n=byId(id);if(!n)return;
+ const d=sheet(`<h3>Delete forever?</h3><p>“${esc(n.name)}” and everything inside it will be erased from this phone and cannot be restored.</p><div class="row"><button class="b b2" id="cx">Keep it</button><button class="b" id="ok">Delete</button></div>`);
+ $("cx").onclick=()=>d.remove();
+ $("ok").onclick=async()=>{d.remove();try{for(const z of [n,...desc(id)]){await delB(z.id);await delB("c"+z.id);drop(z.id);drop("c"+z.id);await delN(z.id);N=N.filter(y=>y.id!==z.id)}say("Deleted");render()}catch(x){er(x)}}}
+async function addFiles(fs){
+ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(_){}
+ for(let i=0;i<fs.length;i++){const f=fs[i];say("Saving "+(i+1)+" of "+fs.length+": "+f.name);
+  try{const id=uid();await putB(id,f);await save({id,type:"file",parent:cur,name:f.name,mime:f.type,size:f.size,deleted:false,star:false,created:Date.now()})}
+  catch(x){er(x.name==="QuotaExceededError"?"Phone storage is full":x);break}}
+ render();say("Done ✅")}
+$("fm").onchange=e=>{const f=[...e.target.files];e.target.value="";addFiles(f)};
+$("fd").onchange=e=>{const f=[...e.target.files];e.target.value="";addFiles(f)};
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+allN().then(l=>{N=l||[];render()}).catch(er);
+</script>
+</body>
+</html>
